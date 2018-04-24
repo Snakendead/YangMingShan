@@ -527,7 +527,9 @@
 					};
 					5171ACE61CE9A49B00B72748 = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = 4WPMH89S8B;
 						LastSwiftMigration = 0800;
+						ProvisioningStyle = Manual;
 					};
 					5171ACFF1CE9A49C00B72748 = {
 						CreatedOnToolsVersion = 7.3;
@@ -884,11 +886,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 4WPMH89S8B;
 				INFOPLIST_FILE = "$(SRCROOT)/YangMingShanDemo/ObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.yahoo.YangMingShanDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = net.prvtbox.privatebox;
 				PRODUCT_NAME = YangMingShanDemo;
+				PROVISIONING_PROFILE = "8e0699f2-2afc-4163-bfd5-0471febd5c9f";
+				PROVISIONING_PROFILE_SPECIFIER = "Private box development";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -899,11 +905,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 2X85N89LCY;
 				INFOPLIST_FILE = "$(SRCROOT)/YangMingShanDemo/ObjC/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.yahoo.YangMingShanDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = net.prvtbox.privatebox;
 				PRODUCT_NAME = YangMingShanDemo;
+				PROVISIONING_PROFILE = "146d3d94-b3c7-4719-8885-ba19452548c2";
+				PROVISIONING_PROFILE_SPECIFIER = "PB IOS Development";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};

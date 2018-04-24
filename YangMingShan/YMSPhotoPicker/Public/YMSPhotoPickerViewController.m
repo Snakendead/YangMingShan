@@ -29,6 +29,8 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
 @property (nonatomic, weak) IBOutlet UICollectionView *photoCollectionView;
 @property (nonatomic, strong) PHImageManager *imageManager;
 @property (nonatomic, weak) AVCaptureSession *session;
+@property (nonatomic, assign) BOOL sessionStarted;
+
 @property (nonatomic, strong) NSArray *collectionItems;
 @property (nonatomic, strong) NSDictionary *currentCollectionItem;
 @property (nonatomic, strong) NSMutableArray *selectedPhotos;
@@ -175,9 +177,15 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
 
         self.session = cameraCell.session;
         
-        if (![self.session isRunning]) {
-            [self.session startRunning];
-        }
+        cameraCell.backgroundColor = [UIColor blackColor];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            if (![self.session isRunning] && !self.sessionStarted) {
+                self.sessionStarted = YES;
+                [self.session startRunning];
+                self.sessionStarted = NO;
+            }
+        });
         
         return cameraCell;
     }    
@@ -343,8 +351,10 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
         }
         else {
             // If collection view doesn't update, camera won't start to run
-            if (![self.session isRunning]) {
+            if (![self.session isRunning] && !self.sessionStarted) {
+                self.sessionStarted = YES;
                 [self.session startRunning];
+                self.sessionStarted = NO;
             }
         }
     }];
