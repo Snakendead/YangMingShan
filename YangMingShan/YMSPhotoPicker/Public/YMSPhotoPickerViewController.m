@@ -77,9 +77,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
     self.photoCollectionView.delegate = self;
     self.photoCollectionView.dataSource = self;
     
-    UINib *cellNib = [UINib nibWithNibName:YMSCameraCellNibName bundle:[NSBundle bundleForClass:YMSCameraCell.class]];
-    [self.photoCollectionView registerNib:cellNib forCellWithReuseIdentifier:YMSCameraCellNibName];
-    cellNib = [UINib nibWithNibName:YMSPhotoCellNibName bundle:[NSBundle bundleForClass:YMSPhotoCell.class]];
+    UINib *cellNib = [UINib nibWithNibName:YMSPhotoCellNibName bundle:[NSBundle bundleForClass:YMSPhotoCell.class]];
     [self.photoCollectionView registerNib:cellNib forCellWithReuseIdentifier:YMSPhotoCellNibName];
     self.photoCollectionView.allowsMultipleSelection = self.allowsMultipleSelection;
 
@@ -164,37 +162,19 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    // +1 for camera cell
+    //  for camera cell
     PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
     
-    return fetchResult.count + 1;
+    return fetchResult.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row == 0) {   // Camera Cell
-        YMSCameraCell *cameraCell = [collectionView dequeueReusableCellWithReuseIdentifier:YMSCameraCellNibName forIndexPath:indexPath];
-
-        self.session = cameraCell.session;
-        
-        cameraCell.backgroundColor = [UIColor blackColor];
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            if (![self.session isRunning] && !self.sessionStarted) {
-                self.sessionStarted = YES;
-                [self.session startRunning];
-                self.sessionStarted = NO;
-            }
-        });
-        
-        return cameraCell;
-    }    
-    
     YMSPhotoCell *photoCell = [collectionView dequeueReusableCellWithReuseIdentifier:YMSPhotoCellNibName forIndexPath:indexPath];
 
     PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
     
-    PHAsset *asset = fetchResult[indexPath.item-1];
+    PHAsset *asset = fetchResult[indexPath.item];
     photoCell.representedAssetIdentifier = asset.localIdentifier;
     
     CGFloat scale = [UIScreen mainScreen].scale * YMSPhotoFetchScaleResizingRatio;
@@ -206,7 +186,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
 
     if ([self.selectedPhotos containsObject:asset]) {
         NSUInteger selectionIndex = [self.selectedPhotos indexOfObject:asset];
-        photoCell.selectionOrder = selectionIndex+1;
+        photoCell.selectionOrder = selectionIndex;
     }
 
     return photoCell;
@@ -231,25 +211,22 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
     if ([cell isKindOfClass:[YMSPhotoCell class]]) {
         YMSPhotoCell *photoCell = (YMSPhotoCell *)cell;
         [photoCell setNeedsAnimateSelection];
-        photoCell.selectionOrder = self.selectedPhotos.count+1;
+        photoCell.selectionOrder = self.selectedPhotos.count;
     }
     return YES;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row == 0) {
-        [self yms_presentCameraCaptureViewWithDelegate:self];
-    }
-    else if (NO == self.allowsMultipleSelection) {
+    if (NO == self.allowsMultipleSelection) {
         if (NO == self.shouldReturnImageForSingleSelection) {
             PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
-            PHAsset *asset = fetchResult[indexPath.item-1];
+            PHAsset *asset = fetchResult[indexPath.item];
             [self.selectedPhotos addObject:asset];
             [self finishPickingPhotos:nil];
         } else {
             PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
-            PHAsset *asset = fetchResult[indexPath.item-1];
+            PHAsset *asset = fetchResult[indexPath.item];
             
             // Prepare the options to pass when fetching the live photo.
             PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
@@ -271,7 +248,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
     }
     else {
         PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
-        PHAsset *asset = fetchResult[indexPath.item-1];
+        PHAsset *asset = fetchResult[indexPath.item];
         [self.selectedPhotos addObject:asset];
         self.doneItem.enabled = YES;
     }
@@ -300,15 +277,15 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
         return;
     }
     PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
-    PHAsset *asset = fetchResult[indexPath.item-1];
+    PHAsset *asset = fetchResult[indexPath.item];
 
     NSUInteger removedIndex = [self.selectedPhotos indexOfObject:asset];
 
     // Reload order higher than removed cell
-    for (NSInteger i=removedIndex+1; i<self.selectedPhotos.count; i++) {
+    for (NSInteger i=removedIndex; i<self.selectedPhotos.count; i++) {
         PHAsset *needReloadAsset = self.selectedPhotos[i];
-        YMSPhotoCell *cell = (YMSPhotoCell *)[collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:[fetchResult indexOfObject:needReloadAsset]+1 inSection:indexPath.section]];
-        cell.selectionOrder = cell.selectionOrder-1;
+        YMSPhotoCell *cell = (YMSPhotoCell *)[collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:[fetchResult indexOfObject:needReloadAsset] inSection:indexPath.section]];
+        cell.selectionOrder = cell.selectionOrder;
     }
 
     [self.selectedPhotos removeObject:asset];
@@ -387,7 +364,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
 
         PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
 
-        PHAsset *asset = fetchResult[indexPath.item-1];
+        PHAsset *asset = fetchResult[indexPath.item];
 
         YMSSinglePhotoViewController *presentedViewController = [[YMSSinglePhotoViewController alloc] initWithPhotoAsset:asset imageManager:self.imageManager dismissalHandler:^(BOOL selected) {
             if (selected && [self collectionView:self.photoCollectionView shouldSelectItemAtIndexPath:indexPath]) {
@@ -515,9 +492,9 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
         if ([self.selectedPhotos containsObject:asset]) {
 
             // Display selection
-            [self.photoCollectionView selectItemAtIndexPath:[NSIndexPath indexPathForItem:i+1 inSection:0] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-            YMSPhotoCell *cell = (YMSPhotoCell *)[self.photoCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:i+1 inSection:0]];
-            cell.selectionOrder = [self.selectedPhotos indexOfObject:asset]+1;
+            [self.photoCollectionView selectItemAtIndexPath:[NSIndexPath indexPathForItem:i inSection:0] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+            YMSPhotoCell *cell = (YMSPhotoCell *)[self.photoCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:i inSection:0]];
+            cell.selectionOrder = [self.selectedPhotos indexOfObject:asset];
 
             selectionNumber--;
             if (selectionNumber == 0) {
@@ -674,7 +651,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
                 NSIndexSet *removedIndexes = [collectionChanges removedIndexes];
                 NSMutableArray *removeIndexPaths = [NSMutableArray arrayWithCapacity:removedIndexes.count];
                 [removedIndexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-                    [removeIndexPaths addObject:[NSIndexPath indexPathForItem:idx+1 inSection:0]];
+                    [removeIndexPaths addObject:[NSIndexPath indexPathForItem:idx inSection:0]];
                 }];
                 if ([removedIndexes count] > 0) {
                     [collectionView deleteItemsAtIndexPaths:removeIndexPaths];
@@ -683,7 +660,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
                 NSIndexSet *insertedIndexes = [collectionChanges insertedIndexes];
                 NSMutableArray *insertIndexPaths = [NSMutableArray arrayWithCapacity:insertedIndexes.count];
                 [insertedIndexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-                    [insertIndexPaths addObject:[NSIndexPath indexPathForItem:idx+1 inSection:0]];
+                    [insertIndexPaths addObject:[NSIndexPath indexPathForItem:idx inSection:0]];
                 }];
                 if ([insertedIndexes count] > 0) {
                     [collectionView insertItemsAtIndexPaths:insertIndexPaths];
