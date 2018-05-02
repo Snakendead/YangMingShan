@@ -236,7 +236,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
             
             CGSize targetSize = CGSizeMake(asset.pixelWidth, asset.pixelHeight);
             
-            [self.imageManager requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeAspectFill options:options resultHandler:^(UIImage *image, NSDictionary *info) {
+            [self.imageManager requestImageForAsset:asset targetSize:targetSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *image, NSDictionary *info) {
                 if (image && [self.delegate respondsToSelector:@selector(photoPickerViewController:didFinishPickingImage:)]) {
                     [self.delegate photoPickerViewController:self didFinishPickingImage:[self yms_orientationNormalizedImage:image]];
                 }
@@ -517,7 +517,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
     weakFetchAlbums = fetchAlbums = ^void(PHFetchResult *collections) {
         // create fecth options
         PHFetchOptions *options = [PHFetchOptions new];
-        options.predicate = [NSPredicate predicateWithFormat:@"mediaType = %d",PHAssetMediaTypeImage];
+        options.predicate = [NSPredicate predicateWithFormat:@"mediaType = %d OR mediaType = %d", PHAssetMediaTypeImage, PHAssetMediaTypeVideo];
         options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
 
         for (PHCollection *collection in collections) {
@@ -543,7 +543,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
 
     for (PHAssetCollection *collection in smartAlbums) {
         PHFetchOptions *options = [PHFetchOptions new];
-        options.predicate = [NSPredicate predicateWithFormat:@"mediaType = %d",PHAssetMediaTypeImage];
+        options.predicate = [NSPredicate predicateWithFormat:@"mediaType = %d OR mediaType = %d",PHAssetMediaTypeImage, PHAssetMediaTypeVideo];
         options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
 
         PHFetchResult *assetsFetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:options];
