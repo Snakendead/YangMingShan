@@ -55,4 +55,6 @@
  */
 - (void)animateHighlight:(BOOL)highlighted;
 
+- (void)setupDuration:(NSTimeInterval)duration;
+
 @end

@@ -30,6 +30,9 @@ static const CGFloat YMSUnhightedAnimationSpringVelocity = 6.0;
 @property (nonatomic, weak) IBOutlet UILabel *selectionOrderLabel;
 @property (nonatomic, strong) UIImage *thumbnailImage;
 
+@property (nonatomic, weak) IBOutlet UILabel *durationLabel;
+@property (nonatomic, weak) IBOutlet UIView *gradientView;
+
 - (void)cancelImageRequest;
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;
 
@@ -52,6 +55,15 @@ static const CGFloat YMSUnhightedAnimationSpringVelocity = 6.0;
     self.selectionOrderLabel.backgroundColor = [YMSPhotoPickerTheme sharedInstance].orderTintColor;
     self.selectionVeil.layer.borderColor = [YMSPhotoPickerTheme sharedInstance].orderTintColor.CGColor;
 
+    self.gradientView.backgroundColor = [UIColor clearColor];
+    
+    CAGradientLayer *gradient = [[CAGradientLayer alloc] init];
+    gradient.colors = @[(id)UIColor.clearColor.CGColor, (id)UIColor.blackColor.CGColor];
+    gradient.frame = self.gradientView.bounds;
+    gradient.locations = @[@0.0, @0.8];
+    
+    [self.gradientView.layer insertSublayer:gradient atIndex:0];
+    
     [self prepareForReuse];
 }
 
@@ -89,6 +101,22 @@ static const CGFloat YMSUnhightedAnimationSpringVelocity = 6.0;
 - (void)loadPhotoWithManager:(PHImageManager *)manager forAsset:(PHAsset *)asset targetSize:(CGSize)size
 {
     self.imageManager = manager;
+    if (asset.mediaType == PHAssetMediaTypeVideo) {
+        self.gradientView.hidden = NO;
+        
+        self.durationLabel.hidden = NO;
+        
+        NSTimeInterval duration = asset.duration;
+        long min = (long)duration / 60;
+        long sec = (long)duration % 60;
+        NSString* str = [[NSString alloc] initWithFormat:@"%02ld:%02d", min, sec];
+
+        self.durationLabel.text = str;
+    }
+    else {
+        self.gradientView.hidden = YES;
+        self.durationLabel.hidden = YES;
+    }
     self.imageRequestID = [self.imageManager requestImageForAsset:asset
                                                        targetSize:size
                                                       contentMode:PHImageContentModeAspectFill
@@ -104,6 +132,10 @@ static const CGFloat YMSUnhightedAnimationSpringVelocity = 6.0;
 - (void)setNeedsAnimateSelection
 {
     self.animateSelection = YES;
+}
+
+- (void)setupDuration:(NSTimeInterval)duration {
+    
 }
 
 - (void)animateHighlight:(BOOL)highlighted

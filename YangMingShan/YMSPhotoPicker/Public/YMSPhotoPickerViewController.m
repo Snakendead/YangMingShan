@@ -175,6 +175,7 @@ static const CGFloat YMSPhotoFetchScaleResizingRatio = 0.75;
     PHFetchResult *fetchResult = self.currentCollectionItem[@"assets"];
     
     PHAsset *asset = fetchResult[indexPath.item];
+    
     photoCell.representedAssetIdentifier = asset.localIdentifier;
     
     CGFloat scale = [UIScreen mainScreen].scale * YMSPhotoFetchScaleResizingRatio;
